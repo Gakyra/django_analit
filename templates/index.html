@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Головна — Інвест‑Аналітик{% endblock %}
+{% block content %}
+<div class="glass p-5 text-center">
+    <h1 class="mb-4">👋 Ласкаво просимо!</h1>
+    <p class="lead">Ваш особистий фінансовий аналітик. Аналіз ринків, поради, навчання — все в одному місці.</p>
+    <p class="mt-4 text-info">💡 Порада дня: <strong>{{ tip }}</strong></p>
+    <div class="mt-4">
+        <a href="/analytics/view/" class="btn btn-success btn-lg me-2">Почати аналіз</a>
+        <a href="/academy/" class="btn btn-outline-info btn-lg">Перейти до навчання</a>
+    </div>
+</div>
+{% endblock %}
