@@ -3,9 +3,10 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-$a7o#8_q+$=xy%j#-8-9w%x_40v@onm=t$g5gpxmzh+u*_#az%'
+SECRET_KEY = 'django-insecure-...'
 DEBUG = True
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -16,11 +17,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
     'analytics',
-    'csp',  # ✅ CSP middleware
+    # 'csp',  # если используешь CSP — раскомментируй
 ]
 
 MIDDLEWARE = [
-    'csp.middleware.CSPMiddleware',  # ✅ CSP must go first
+    # 'csp.middleware.CSPMiddleware',  # если используешь CSP — раскомментируй и поставь первым
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -69,20 +70,26 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ✅ CSP 4.0+ format for WebSocket and external scripts
-CONTENT_SECURITY_POLICY = {
-    "DIRECTIVES": {
-        "default-src": ("'self'",),
-        "connect-src": ("'self'", "wss://stream.binance.com"),
-        "script-src": ("'self'", "'unsafe-inline'", "https://unpkg.com", "https://cdn.jsdelivr.net"),
-        "style-src": ("'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"),
-        "img-src": ("'self'", "data:"),
-        "font-src": ("'self'", "https://cdn.jsdelivr.net"),
-    }
-}
+# ✅ CSP (если используешь)
+# CONTENT_SECURITY_POLICY = {
+#     "DIRECTIVES": {
+#         "default-src": ("'self'",),
+#         "connect-src": ("'self'", "wss://stream.binance.com"),
+#         "script-src": ("'self'", "'unsafe-inline'", "https://unpkg.com", "https://cdn.jsdelivr.net"),
+#         "style-src": ("'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"),
+#         "img-src": ("'self'", "data:"),
+#         "font-src": ("'self'", "https://cdn.jsdelivr.net"),
+#     }
+# }
 
-# ✅ Optional security headers
+# ✅ Безопасность (опционально)
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
