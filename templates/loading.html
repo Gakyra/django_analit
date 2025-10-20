@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Завантаження аналітики...</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 100px;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: white;
+    }
+    .spinner {
+      margin: 40px auto;
+      width: 60px;
+      height: 60px;
+      border: 6px solid #fff;
+      border-top: 6px solid #00c3ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <h2>Йде завантаження аналітики для {{ asset_id }}</h2>
+  <div class="spinner"></div>
+  <p>Будь ласка, зачекайте кілька секунд...</p>
+
+  <script>
+    const assetId = "{{ asset_id }}";
+    const period = "{{ period }}";
+    const forecast = "{{ forecast }}";
+
+    function checkStatus() {
+      fetch(`/analytics/loading/?asset_id=${assetId}&period=${period}&forecast=${forecast}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "ready") {
+            window.location.href = `/analytics/result/?asset_id=${assetId}&period=${period}&forecast=${forecast}`;
+          } else {
+            setTimeout(checkStatus, 5000); // повтор через 5 секунд
+          }
+        })
+        .catch(() => setTimeout(checkStatus, 5000)); // повтор даже при ошибке
+    }
+
+    checkStatus();
+  </script>
+</body>
+</html>

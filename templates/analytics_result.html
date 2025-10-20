@@ -5,14 +5,63 @@
     <h2 class="mb-4 text-center">📊 {{ asset.name }} ({{ asset.symbol|upper }}) — {{ period }} днів</h2>
 
     <div class="row g-4">
-        <div class="col-md-4"><div class="glass p-4"><h5>💰 Ціна</h5><p class="fs-4">{{ asset.price }} USD</p></div></div>
-        <div class="col-md-4"><div class="glass p-4"><h5>📈 Зміна (24г)</h5><p class="fs-4">{{ asset.change }}%</p></div></div>
-        <div class="col-md-4"><div class="glass p-4"><h5>📊 Волатильність</h5><p class="fs-4">{{ volatility }}</p></div></div>
+        <div class="col-md-4">
+            <div class="glass p-4">
+                <h5>💰 Ціна</h5>
+                <p class="fs-4">
+                    {% if asset.price > 0 %}
+                        {{ asset.price }} USD
+                    {% else %}
+                        <span class="text-muted">Немає даних</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass p-4">
+                <h5>📈 Зміна (24г)</h5>
+                <p class="fs-4">
+                    {% if asset.change %}
+                        {{ asset.change }}%
+                    {% else %}
+                        <span class="text-muted">Немає даних</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass p-4">
+                <h5>📊 Волатильність</h5>
+                <p class="fs-4">{{ volatility }}</p>
+            </div>
+        </div>
     </div>
 
     <div class="row g-4 mt-4">
-        <div class="col-md-6"><div class="glass p-4"><h5>🏦 Капіталізація</h5><p class="fs-5">{{ asset.market_cap|floatformat:0 }} USD</p></div></div>
-        <div class="col-md-6"><div class="glass p-4"><h5>🔄 Обсяг торгів</h5><p class="fs-5">{{ asset.volume|floatformat:0 }} USD</p></div></div>
+        <div class="col-md-6">
+            <div class="glass p-4">
+                <h5>🏦 Капіталізація</h5>
+                <p class="fs-5">
+                    {% if asset.market_cap > 0 %}
+                        {{ asset.market_cap|floatformat:0 }} USD
+                    {% else %}
+                        <span class="text-muted">Немає даних</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass p-4">
+                <h5>🔄 Обсяг торгів</h5>
+                <p class="fs-5">
+                    {% if asset.volume > 0 %}
+                        {{ asset.volume|floatformat:0 }} USD
+                    {% else %}
+                        <span class="text-muted">Немає даних</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
     </div>
 
     <div class="glass p-4 mt-5">
@@ -20,7 +69,7 @@
         <canvas id="priceChart" height="100"></canvas>
     </div>
 
-    {% if forecast %}
+    {% if forecast and forecast.target %}
     <div class="glass p-4 mt-4">
         <h5>🔮 Прогноз: {{ forecast.direction }} до {{ forecast.target }} USD</h5>
         <p class="text-muted">На основі останнього тренду</p>
@@ -34,7 +83,6 @@
 
     <div class="mt-4 text-center">
         <a href="{% url 'analytics_form' %}" class="btn btn-outline-light me-2">← Назад</a>
-        <a href="/analytics/candles/?asset={{ asset_id }}&interval=5m" class="btn btn-warning">Перейти до графіка свічок</a>
     </div>
 </div>
 
@@ -43,12 +91,14 @@
 const rawLabels = [{% for point in chart %}{{ point.0 }},{% endfor %}];
 const priceData = [{% for point in chart %}{{ point.1 }},{% endfor %}];
 const volumeData = [{% for point in volume %}{{ point.1 }},{% endfor %}];
-const forecastPoint = {% if forecast %}{{ forecast.target }}{% else %}null{% endif %};
+const forecastPoint = {% if forecast and forecast.target %}{{ forecast.target }}{% else %}null{% endif %};
 
 const labels = rawLabels.map(ts => {
     const d = new Date(ts);
     return `${d.getDate()} ${d.toLocaleString('default', { month: 'short' })}`;
 });
+
+const lastPrice = priceData.length ? priceData[priceData.length - 1] : 0;
 
 const ctx = document.getElementById('priceChart').getContext('2d');
 new Chart(ctx, {
@@ -73,12 +123,12 @@ new Chart(ctx, {
                 yAxisID: 'y1',
                 type: 'bar',
             },
-            {% if forecast %}
+            {% if forecast and forecast.target %}
             {
                 label: "Прогноз",
                 data: Array(priceData.length - 1).fill(null).concat([forecastPoint]),
-                borderColor: forecastPoint > priceData[priceData.length - 1] ? '#00ff00' : '#ff4444',
-                pointBackgroundColor: forecastPoint > priceData[priceData.length - 1] ? '#00ff00' : '#ff4444',
+                borderColor: forecastPoint > lastPrice ? '#00ff00' : '#ff4444',
+                pointBackgroundColor: forecastPoint > lastPrice ? '#00ff00' : '#ff4444',
                 pointRadius: 6,
                 type: 'line',
                 borderDash: [5, 5],

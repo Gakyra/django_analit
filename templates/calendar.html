@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Економічний календар{% endblock %}
+{% block content %}
+<div class="glass p-5">
+  <h2 class="mb-4 text-center"> Економічний календар</h2>
+  <div class="ratio ratio-16x9">
+    <iframe src="https://www.tradingview.com/embed-widget/events/?locale=ru"
+            width="100%" height="600" frameborder="0" allowtransparency="true"
+            scrolling="no" style="border: none;"></iframe>
+  </div>
+</div>
+{% endblock %}
