@@ -18,7 +18,6 @@
     <div class="glass p-4 mt-5">
         <h4 class="mb-3">📉 Графік ціни та обсягу</h4>
         <canvas id="priceChart" height="100"></canvas>
-        <p id="fallbackMessage" class="text-warning" style="display:none;">Графік недоступний. Остання ціна: {{ asset.price }} USD</p>
     </div>
 
     {% if forecast %}
@@ -45,83 +44,77 @@ const rawLabels = [{% for point in chart %}{{ point.0 }},{% endfor %}];
 const priceData = [{% for point in chart %}{{ point.1 }},{% endfor %}];
 const volumeData = [{% for point in volume %}{{ point.1 }},{% endfor %}];
 const forecastPoint = {% if forecast %}{{ forecast.target }}{% else %}null{% endif %};
-const forecastLabel = "Прогноз";
 
-if (priceData.length === 0 || volumeData.length === 0) {
-    document.getElementById("priceChart").style.display = "none";
-    document.getElementById("fallbackMessage").style.display = "block";
-} else {
-    const labels = rawLabels.map(ts => {
-        const d = new Date(ts);
-        return `${d.getDate()} ${d.toLocaleString('default', { month: 'short' })}`;
-    });
+const labels = rawLabels.map(ts => {
+    const d = new Date(ts);
+    return `${d.getDate()} ${d.toLocaleString('default', { month: 'short' })}`;
+});
 
-    const ctx = document.getElementById('priceChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Ціна (USD)',
-                    data: priceData,
-                    borderColor: '#00ffc6',
-                    backgroundColor: 'rgba(0,255,198,0.1)',
-                    yAxisID: 'y',
-                    tension: 0.3,
-                    fill: true,
-                },
-                {
-                    label: 'Обсяг (USD)',
-                    data: volumeData,
-                    borderColor: '#ffcc00',
-                    backgroundColor: 'rgba(255,204,0,0.1)',
-                    yAxisID: 'y1',
-                    type: 'bar',
-                },
-                {% if forecast %}
-                {
-                    label: forecastLabel,
-                    data: Array(priceData.length - 1).fill(null).concat([forecastPoint]),
-                    borderColor: forecastPoint > priceData[priceData.length - 1] ? '#00ff00' : '#ff4444',
-                    pointBackgroundColor: forecastPoint > priceData[priceData.length - 1] ? '#00ff00' : '#ff4444',
-                    pointRadius: 6,
-                    type: 'line',
-                    borderDash: [5, 5],
-                    yAxisID: 'y',
-                }
-                {% endif %}
-            ]
+const ctx = document.getElementById('priceChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [
+            {
+                label: 'Ціна (USD)',
+                data: priceData,
+                borderColor: '#00ffc6',
+                backgroundColor: 'rgba(0,255,198,0.1)',
+                yAxisID: 'y',
+                tension: 0.3,
+                fill: true,
+            },
+            {
+                label: 'Обсяг (USD)',
+                data: volumeData,
+                borderColor: '#ffcc00',
+                backgroundColor: 'rgba(255,204,0,0.1)',
+                yAxisID: 'y1',
+                type: 'bar',
+            },
+            {% if forecast %}
+            {
+                label: "Прогноз",
+                data: Array(priceData.length - 1).fill(null).concat([forecastPoint]),
+                borderColor: forecastPoint > priceData[priceData.length - 1] ? '#00ff00' : '#ff4444',
+                pointBackgroundColor: forecastPoint > priceData[priceData.length - 1] ? '#00ff00' : '#ff4444',
+                pointRadius: 6,
+                type: 'line',
+                borderDash: [5, 5],
+                yAxisID: 'y',
+            }
+            {% endif %}
+        ]
+    },
+    options: {
+        responsive: true,
+        interaction: {
+            mode: 'index',
+            intersect: false
         },
-        options: {
-            responsive: true,
-            interaction: {
-                mode: 'index',
-                intersect: false
+        stacked: false,
+        plugins: {
+            legend: { labels: { color: '#ccc' } },
+            tooltip: { enabled: true }
+        },
+        scales: {
+            x: { ticks: { color: '#ccc' } },
+            y: {
+                type: 'linear',
+                position: 'left',
+                ticks: { color: '#ccc' },
+                title: { display: true, text: 'Ціна', color: '#ccc' }
             },
-            stacked: false,
-            plugins: {
-                legend: { labels: { color: '#ccc' } },
-                tooltip: { enabled: true }
-            },
-            scales: {
-                x: { ticks: { color: '#ccc' } },
-                y: {
-                    type: 'linear',
-                    position: 'left',
-                    ticks: { color: '#ccc' },
-                    title: { display: true, text: 'Ціна', color: '#ccc' }
-                },
-                y1: {
-                    type: 'linear',
-                    position: 'right',
-                    grid: { drawOnChartArea: false },
-                    ticks: { color: '#ccc' },
-                    title: { display: true, text: 'Обсяг', color: '#ccc' }
-                }
+            y1: {
+                type: 'linear',
+                position: 'right',
+                grid: { drawOnChartArea: false },
+                ticks: { color: '#ccc' },
+                title: { display: true, text: 'Обсяг', color: '#ccc' }
             }
         }
-    });
-}
+    }
+});
 </script>
 {% endblock %}

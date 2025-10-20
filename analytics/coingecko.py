@@ -8,7 +8,7 @@ def get_supported_assets():
         "bitcoin": "Bitcoin",
         "ethereum": "Ethereum",
         "solana": "Solana",
-        "avalanche-2": "Avalanche",
+        "avalanche": "Avalanche",
         "dogecoin": "Dogecoin",
     }
 
